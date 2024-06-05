@@ -1,31 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Congratulations() {
-  const [name, setName] = useState('');
   const navigate = useNavigate();
-  const location = useLocation();
-  const { finalTime } = location.state || { finalTime: 'Unknown' };
 
-  const handleSubmit = () => {
-    // Simulated database submission
-    console.log('Submitting:', name, finalTime, new Date().toISOString());
-    navigate('/leaderboard', { state: { name, finalTime } });
+  useEffect(() => {
+    // Vibrate the device when this page loads
+    if (navigator.vibrate) {
+      navigator.vibrate([1000, 300, 1000, 300, 1000]); // A longer vibration pattern
+    }
+  }, []);
+
+  const handleRestart = () => {
+    navigate('/'); // Navigate back to the landing page or wherever restart should lead
   };
 
   return (
-    <div className="congratulations-page">
-      <h1>Final Time: {finalTime} seconds</h1>
-      <div>
-        <label htmlFor="name">Name: </label>
-        <input
-          type="text"
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-      <button onClick={handleSubmit}>Submit</button>
+    <div className="congratulations">
+      <h1>Congratulations! You've completed all clues!</h1>
+      <button onClick={handleRestart}>Restart Game</button>
     </div>
   );
 }

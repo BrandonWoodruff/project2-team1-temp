@@ -3,25 +3,42 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from './GameContext';
 
 function Clues() {
-  const { timer, setTimer, isActive, setIsActive, clueCompletion, setClueCompletion } = useGame();
+  const {
+    timer,
+    setTimer,
+    isActive,
+    setIsActive,
+    clueCompletion,
+    setClueCompletion
+  } = useGame();
   const navigate = useNavigate();
 
   useEffect(() => {
-    let interval = null;
+    // Start the timer if it's not active and should be running
+    if (!isActive && Object.values(clueCompletion).some(completed => !completed)) {
+      setIsActive(true);
+    }
 
+    let interval;
     if (isActive) {
       interval = setInterval(() => {
         setTimer(t => t + 1);
       }, 1000);
-    } else {
-      clearInterval(interval);
     }
 
-    return () => clearInterval(interval);
-  }, [isActive, setTimer]);
+    return () => clearInterval(interval);  // Clear the interval when the component unmounts
+  }, [isActive, setIsActive, setTimer, clueCompletion]);
+
+  useEffect(() => {
+    // Check if all clues are completed and navigate to Congratulations page if so
+    const allCompleted = Object.values(clueCompletion).every(Boolean);
+    if (allCompleted) {
+      setIsActive(false);  // Stop the timer
+      navigate('/Congratulations');  // Navigate to the Congratulations page
+    }
+  }, [clueCompletion, navigate, setIsActive]);
 
   const handleClueCompletion = (clueId) => {
-    setIsActive(false);
     setClueCompletion(prev => ({ ...prev, [clueId]: true }));
     navigate(`/clue-success/${clueId}`);
   };
