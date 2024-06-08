@@ -9,8 +9,14 @@ export const GameProvider = ({ children }) => {
   const [isActive, setIsActive] = useState(true);
   const [clueCompletion, setClueCompletion] = useState({ 1: false, 2: false, 3: false });
 
+  const resetGame = () => {
+    setTimer(0);
+    setIsActive(false);
+    setClueCompletion({ 1: false, 2: false, 3: false });
+  };
+
   return (
-    <GameContext.Provider value={{ timer, setTimer, isActive, setIsActive, clueCompletion, setClueCompletion }}>
+    <GameContext.Provider value={{ timer, setTimer, isActive, setIsActive, clueCompletion, setClueCompletion, resetGame }}>
       {children}
     </GameContext.Provider>
   );

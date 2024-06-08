@@ -1,24 +1,22 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ReactP5Wrapper } from 'react-p5-wrapper';
+import sketch from './sketches/sketch'; // Ensure this path is correct and sketches are exported properly
 
-function ClueSuccess({ clueId }) {
+function ClueSuccess() {
+  const { clueId } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Vibrate the device when this page loads
-    if (navigator.vibrate) {
-      navigator.vibrate([500, 200, 500]); // Vibrate twice with a pause in between
-    }
-  }, []);
-
-  const handleContinue = () => {
-    navigate('/Clues'); // Navigate back to the Clues page
+  const continueGame = () => {
+    navigator.vibrate([200, 100, 200]); // Vibration pattern
+    navigate('/clues');
   };
 
   return (
-    <div className="clue-success">
+    <div className="clue-success-page">
       <h1>Clue {clueId} Completed!</h1>
-      <button onClick={handleContinue}>Continue</button>
+      <ReactP5Wrapper sketch={sketch[clueId]} />
+      <button onClick={continueGame}>Continue</button>
     </div>
   );
 }

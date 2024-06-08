@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGame } from './GameContext'; // Import the useGame hook
 import p5 from 'p5';
 
 function Landing() {
@@ -7,8 +8,11 @@ function Landing() {
   const navigate = useNavigate();
   const canvasRef = React.useRef();
   const gifRef = React.useRef();
+  const { resetGame } = useGame(); // Destructure resetGame from useGame
 
   useEffect(() => {
+    resetGame(); // Reset the game state when the component mounts
+
     // Location permission
     navigator.geolocation.getCurrentPosition(
       position => {
@@ -23,8 +27,13 @@ function Landing() {
     // Initialize p5 sketch
     const sketch = p => {
       p.setup = () => {
-        p.createCanvas(500, 300).parent(canvasRef.current);
-        p.background(0);
+        const canvas = p.createCanvas(500, 300).parent(canvasRef.current);
+        canvas.style('position', 'absolute');
+        canvas.style('top', '50%');
+        canvas.style('left', '50%');
+        canvas.style('transform', 'translate(-50%, -50%)');
+        canvas.style('z-index', '0');
+        p.clear(); // Clear the canvas to make it transparent
         gifRef.current = p.createImg(process.env.PUBLIC_URL + '/mascot.gif', '');
         gifRef.current.style('position', 'absolute');
         gifRef.current.style('top', '50%');
@@ -47,7 +56,7 @@ function Landing() {
         gifRef.current.remove();
       }
     };
-  }, []);
+  }, [resetGame]);
 
   return (
     <div className='flex flex-col justify-center items-center h-screen bg-cover' style={{ backgroundImage: "url('campus.jpg')" }}>
