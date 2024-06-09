@@ -13,10 +13,18 @@ function ClueSuccess() {
   };
 
   return (
-    <div className="clue-success-page">
-      <h1>Clue {clueId} Completed!</h1>
-      <ReactP5Wrapper sketch={sketch[clueId]} />
-      <button onClick={continueGame}>Continue</button>
+    <div className="clue-success-page flex justify-center items-center h-screen bg-cover"
+         style={{ backgroundImage: "url('/campus.jpg')" }}>
+      <div className="bg-white bg-opacity-75 p-8 rounded-lg text-center shadow-lg">
+        <h1 className="text-2xl font-bold mb-4">Clue {clueId} Completed!</h1>
+        <ReactP5Wrapper sketch={sketch[clueId]} />
+        <button
+          onClick={continueGame}
+          className="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+        >
+          Continue
+        </button>
+      </div>
     </div>
   );
 }
