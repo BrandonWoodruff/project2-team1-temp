@@ -13,16 +13,20 @@ function Congratulations() {
     }
 
     // Initialize p5.js sketch for animation
-    new p5(sketch, sketchRef.current);
-  }, []);
+    let p5Instance = new p5(sketch, sketchRef.current);
+    return () => { p5Instance.remove(); }; // Clean up the sketch when component unmounts or re-renders
+  }, []); // Empty dependency array ensures this effect runs only once on mount
 
   const sketch = (p) => {
     let particles = [];
+    let hueOffset = p.random(0, 255); // Random offset for the hue
 
     p.setup = () => {
       p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
-      for (let i = 0; i < 100; i++) { // Number of particles
-        particles.push(new Particle(p));
+      p.colorMode(p.HSB, 255); // Use HSB for more vibrant colors
+      p.noStroke();
+      for (let i = 0; i < 150; i++) { // Number of particles
+        particles.push(new Particle(p, hueOffset));
       }
     };
 
@@ -32,27 +36,28 @@ function Congratulations() {
         particle.update();
         particle.show();
         if (particle.isDead()) {
-          particles[index] = new Particle(p); // Recreate particles once they die
+          particles[index] = new Particle(p, hueOffset); // Recreate particles with the same hue offset
         }
       });
     };
 
     class Particle {
-      constructor(p) {
+      constructor(p, hueOffset) {
         this.p = p;
-        this.pos = p.createVector(p.random(-200, 200), p.random(-200, 200), p.random(-200, 200));
-        this.vel = p5.Vector.random3D().mult(p.random(0.1, 1)); // Slower velocities
+        this.pos = p.createVector(p.random(-p.width / 2, p.width / 2), p.random(-p.height / 2, p.height / 2), p.random(-p.width / 2, p.width / 2));
+        this.vel = p5.Vector.random3D().mult(p.random(0.1, 1.5)); // Adjusted speeds
         this.acc = p.createVector(0, 0, 0);
-        this.color = [p.random(100, 255), p.random(100, 255), p.random(100, 255)]; // Random colors
-        this.size = p.random(5, 20);
-        this.lifespan = 400; // Lifespan to control fading
-        this.fade = 0.5; // Slower fade rate
+        let hue = (hueOffset + p.random(100, 255)) % 255; // Apply the hue offset
+        this.color = [hue, 255, 255]; // Bright colors with full saturation and brightness
+        this.size = p.random(10, 20); // Larger sizes for more visibility
+        this.lifespan = 255; // Starting opacity
+        this.fade = 0.6; // Slower fade for longer visibility
       }
 
       update() {
         this.vel.add(this.acc);
         this.pos.add(this.vel);
-        this.lifespan -= this.fade; // Decrease lifespan slower to extend particle life
+        this.lifespan -= this.fade; // Gradual fading
       }
 
       show() {
@@ -83,5 +88,6 @@ function Congratulations() {
     </div>
   );
 }
+
 
 export default Congratulations;
