@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from './GameContext';
-import Sketch from 'react-p5';
 
 function Clues() {
   const {
@@ -13,6 +12,24 @@ function Clues() {
     setClueCompletion
   } = useGame();
   const navigate = useNavigate();
+
+  const questions = {
+    '1': 'Where would you go to study?',
+    '2': 'Where would you go to get a frosty?',
+    '3': 'Where would you go to learn computer science?'
+  };
+
+  const answers = {
+    '1': 'Library',
+    '2': "Wendy's",
+    '3': 'CS Building'
+  };
+
+  const [userAnswers, setUserAnswers] = useState({
+    '1': '',
+    '2': '',
+    '3': ''
+  });
 
   useEffect(() => {
     if (!isActive && Object.values(clueCompletion).some(completed => !completed)) {
@@ -37,57 +54,51 @@ function Clues() {
     }
   }, [clueCompletion, navigate, setIsActive]);
 
-  const handleClueCompletion = (clueId) => {
-    setClueCompletion(prev => ({ ...prev, [clueId]: true }));
-    navigate(`/clue-success/${clueId}`);
+  const handleChange = (clueId, event) => {
+    if (!clueCompletion[clueId]) { // Only allow change if clue isn't completed
+      const { value } = event.target;
+      setUserAnswers(prev => ({ ...prev, [clueId]: value }));
+    }
   };
 
-  const overrideClueCompletion = (clueId) => {
-    handleClueCompletion(clueId);
-  };
-
-  const setup = (p5, canvasParentRef) => {
-    p5.createCanvas(400, 400, p5.WEBGL).parent(canvasParentRef);
-  };
-
-  const draw = (p5) => {
-    // need to make a background that is transparent
-    p5.background(0, 0, 0, 0);
-    //color the box dark green
-    p5.fill(0, 102, 0);
-    p5.rotateX(p5.frameCount * 0.01);
-    p5.rotateY(p5.frameCount * 0.01);
-    p5.rotateZ(p5.frameCount * 0.01);
-    p5.box(100);
-    //put a letter on the box
-    p5.fill(255);
-
+  const handleCheckAnswer = (clueId) => {
+    if (userAnswers[clueId].trim().toLowerCase() === answers[clueId].toLowerCase()) {
+      setClueCompletion(prev => ({ ...prev, [clueId]: true }));
+      navigate(`/clue-success/${clueId}`);
+    } else {
+      alert('Incorrect answer, please try again.');
+    }
   };
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-cover bg-center" style={{ backgroundImage: "url('campus.jpg')" }}>
-      <div className="p-8 rounded-lg items-center w-full max-w-md mx-auto mt-8">
-        <Sketch setup={setup} draw={draw} />
-      </div>
       <div className="bg-white bg-opacity-75 p-8 rounded-lg text-center w-full max-w-md mx-auto mt-8">
         <h1 className="text-4xl font-bold mb-4 text-gray-900">Timer: {timer} seconds</h1>
         <ul className="space-y-4">
-          {Object.entries(clueCompletion).map(([clueId, isCompleted]) => (
-            <li key={clueId} className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow">
-              <span className="text-xl font-medium text-gray-800">Clue {clueId}</span>
-              <div className="flex items-center space-x-4">
+          {Object.entries(questions).map(([clueId, question]) => (
+            <li key={clueId} className="flex flex-col mb-4">
+              <h2 className="text-xl font-bold mb-2">{question}</h2>
+              <input
+                type="text"
+                value={userAnswers[clueId]}
+                onChange={(event) => handleChange(clueId, event)}
+                disabled={clueCompletion[clueId]} // Disable input if clue is completed
+                className="text-lg p-2 border border-gray-300 rounded"
+              />
+              <div className="flex items-center mt-2">
                 <input
                   type="checkbox"
-                  checked={isCompleted}
+                  checked={clueCompletion[clueId]}
                   readOnly
                   className="h-6 w-6 text-green-700 rounded focus:ring-0"
                   style={{ accentColor: 'green' }}
                 />
                 <button
-                  onClick={() => overrideClueCompletion(clueId)}
-                  className="bg-green-700 hover:bg-green-900 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => handleCheckAnswer(clueId)}
+                  disabled={clueCompletion[clueId]} // Disable button if clue is completed
+                  className="ml-4 bg-green-700 hover:bg-green-900 text-white font-bold py-2 px-4 rounded"
                 >
-                  Override
+                  Check Answer
                 </button>
               </div>
             </li>
