@@ -17,7 +17,7 @@ function Leaderboard() {
       const storedResults = JSON.parse(sessionStorage.getItem('leaderboard') || '[]');
       setResults(storedResults);
     }
-  }, [location.state]);
+  }, [location.state, results]);
 
   return (
     <div className="leaderboard-page">
