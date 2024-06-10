@@ -5,7 +5,7 @@ const sketch = {
   let particles = [];
 
   p.setup = function () {
-    p.createCanvas(400, 400, p.WEBGL);
+    p.createCanvas(400, 600, p.WEBGL);
     p.colorMode(p.HSB, 255);
     for (let i = 0; i < 100; i++) {
       particles.push(new Particle(p));
@@ -13,7 +13,7 @@ const sketch = {
   };
 
   p.draw = function () {
-    p.background(0);
+    p.clear();
     p.rotateY(p.frameCount * 0.01);
 
     particles.forEach((particle, index) => {
@@ -63,7 +63,7 @@ const sketch = {
   let x, y, vx, vy;
 
   p.setup = function () {
-    p.createCanvas(200, 200);
+    p.createCanvas(400, 600);
     x = p.width / 2;
     y = p.height / 2;
     vx = 2;
@@ -106,32 +106,59 @@ const sketch = {
 
 ,
 '3': function (p) {
-  let angle = 0;
+  let pyramids = [];
 
   p.setup = function () {
-    p.createCanvas(200, 200, p.WEBGL); // Use WEBGL for 3D rendering
-    p.colorMode(p.HSB, 255); // Using HSB for vibrant color transitions
+    p.createCanvas(400, 600, p.WEBGL);
+    p.colorMode(p.HSB, 255);
+    // Create multiple pyramids
+    for (let i = 0; i < 10; i++) { // Adjust number for more or fewer pyramids
+      pyramids.push(new Pyramid(p));
+    }
   };
 
-  p.draw = function () {
-    p.clear(); // Use clear instead of background for transparency
-    p.rotateY(p.radians(angle)); // Rotate around the Y axis
-    p.rotateX(p.radians(angle / 2)); // Rotate around the X axis for more dynamic effect
-
-    // Incrementally change the rotation angle
-    angle += 2;
-
-    // Dynamic color change
-    let hue = (p.frameCount / 2) % 255;
-    p.fill(hue, 255, 255);
-
-    // Draw the pyramid
-    p.push();
-    p.translate(0, -30, 0); // Adjust position to center the base at origin
-    p.rotateX(-90); // Rotate to stand the pyramid on its base
-    p.cone(60, 100); // Using cone to represent a pyramid, where 60 is the radius and 100 is the height
-    p.pop();
+  p.draw = function () { // Transparent background with clear()
+    p.clear();
+    p.rotateY(p.frameCount * 0.01);
+    pyramids.forEach(pyramid => {
+      pyramid.update();
+      pyramid.show();
+    });
   };
+
+  class Pyramid {
+    constructor(p) {
+      this.p = p;
+      this.pos = p.createVector(p.random(-200, 200), p.random(-200, 200), p.random(-200, 200));
+      this.vel = p5.Vector.random3D();
+      this.vel.mult(p.random(0.5, 2)); // Random speed
+      this.axis = p.createVector(p.random(), p.random(), p.random());
+      this.angle = 0;
+      this.size = p.random(30, 60); // Random size of the pyramid
+      this.color = p.color(p.random(255), 255, 255); // Random color
+    }
+
+    update() {
+      this.pos.add(this.vel);
+      this.angle += .005; // Speed of rotation
+      // Simple boundary reflections
+      if (Math.abs(this.pos.x) > p.width / 2 || Math.abs(this.pos.y) > p.height / 2 || Math.abs(this.pos.z) > p.width / 2) {
+        this.vel.mult(-1);
+      }
+    }
+
+    show() {
+      this.p.push();
+      this.p.translate(this.pos.x, this.pos.y, this.pos.z);
+      this.p.rotateX(this.angle);
+      this.p.rotateY(this.angle);
+      this.p.rotateZ(this.angle);
+      this.p.fill(this.color);
+      this.p.noStroke();
+      this.p.cone(this.size, this.size * 2); // Pyramid using a cone function
+      this.p.pop();
+    }
+  }
 }
 
 ,
